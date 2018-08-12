@@ -26,11 +26,11 @@ class Tag extends ActiveRecord
 
     public function getNews()
     {
-        return $this->hasMany(Article::class, ['id' => 'article_id'])->via('tagNews');
+        return $this->hasMany(Article::class, ['id' => 'article_id'])->viaTable('article_tags', ['article_id' => 'id'])   ;
     }
 
-    public function getTagNews()
-    {
-        return $this->hasMany(ArticleTags::class, ['tag_id' => 'id']);
-    }
+//    public function getTagNews()
+//    {
+//        return $this->hasMany(ArticleTags::class, ['tag_id' => 'id']);
+//    }
 }

@@ -55,7 +55,7 @@ class SiteController extends Controller
     {
         return $this->render('view', [
             'dataProvider' => new ActiveDataProvider([
-                'query' => Article::find()->orderBy('id desc'),
+                'query' => Article::find()->orderBy('id desc')->with('tags'),
                 'pagination' => [
                     'pageSize' => 100,
                 ],

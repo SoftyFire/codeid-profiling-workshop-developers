@@ -30,7 +30,7 @@ class StatsGenerator
     private function wordsCount(): array
     {
         /** @var Article $allNews */
-        $allNews = Article::find()->all();
+        $allNews = Article::find()->select(['LOWER({{article}}.text) as text'])->asArray()->all();
         $wordsCount = [];
 
         foreach ($allNews as $news) {
@@ -45,24 +45,19 @@ class StatsGenerator
      */
     private function newsCount(): int
     {
-        return \count(Article::find()->all());
+        return Article::find()->count();
     }
 
     /**
      * @param Article $news
-     * @param array $wordsCount
+     * @param $wordsCount
+     * @return void
      */
     private function countWordsInNews($news, &$wordsCount): void
     {
-        $text = preg_replace('/[^a-z0-9 ]/', ' ', mb_strtolower($news->text));
+        $text = preg_replace('/[^a-z0-9 ]/', ' ', $news['text']);
         $words = preg_split('/\s/', $text, -1, PREG_SPLIT_NO_EMPTY);
 
-        foreach ($words as $word) {
-            if (!isset($wordsCount[$word])) {
-                $wordsCount[$word] = 1;
-            } else {
-                $wordsCount[$word]++;
-            }
-        }
+        $wordsCount = array_count_values($words);
     }
 }
