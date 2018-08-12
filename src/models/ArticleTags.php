@@ -16,7 +16,6 @@ class ArticleTags extends ActiveRecord
     {
         return [
             [['article_id', 'tag_id'], 'integer'],
-            [['title', 'text'], 'string'],
         ];
     }
 
