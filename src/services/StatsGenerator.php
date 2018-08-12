@@ -19,50 +19,41 @@ class StatsGenerator
      */
     public function generate(): ArticlesStats
     {
-        return new ArticlesStats($this->wordsCount(), $this->newsCount());
+        $texts = Article::find()->select('lower(text) as text')->asArray()->all();
+
+        return new ArticlesStats($this->wordsCount($texts), $this->newsCount($texts));
     }
 
     /**
      * Counts words stats
      *
+     * @param array $texts
      * @return array
      */
-    private function wordsCount(): array
+    private function wordsCount(array $texts): array
     {
-        /** @var Article $allNews */
-        $allNews = Article::find()->all();
-        $wordsCount = [];
-
-        foreach ($allNews as $news) {
-            $this->countWordsInNews($news, $wordsCount);
-        }
-
-        return $wordsCount;
+        $bigText = implode(' ', array_column($texts, 'text'));
+        return $this->countWordsInNews($bigText);
     }
 
     /**
+     * @param array $texts
      * @return int news count
      */
-    private function newsCount(): int
+    private function newsCount(array $texts): int
     {
-        return \count(Article::find()->all());
+        return \count($texts);
     }
 
     /**
-     * @param Article $news
-     * @param array $wordsCount
+     * @param string $input
+     * @return array
      */
-    private function countWordsInNews($news, &$wordsCount): void
+    private function countWordsInNews(string $input): array
     {
-        $text = preg_replace('/[^a-z0-9 ]/', ' ', mb_strtolower($news->text));
+        $text = preg_replace('/[^a-z0-9 ]/', ' ', $input);
         $words = preg_split('/\s/', $text, -1, PREG_SPLIT_NO_EMPTY);
 
-        foreach ($words as $word) {
-            if (!isset($wordsCount[$word])) {
-                $wordsCount[$word] = 1;
-            } else {
-                $wordsCount[$word]++;
-            }
-        }
+        return array_count_values($words);
     }
 }
