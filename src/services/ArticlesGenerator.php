@@ -5,6 +5,7 @@ namespace app\services;
 use app\models\Article;
 use app\models\ArticleTags;
 use app\models\Tag;
+use BlackfireProbe;
 
 /**
  * Class ArticlesGenerator
@@ -38,6 +39,7 @@ class ArticlesGenerator
     {
         $articles = [];
         for ($i = 0; $i < $number; $i++) {
+            BlackfireProbe::addMarker(__METHOD__);
             $articles[] = $this->createRandomArticles();
         }
 

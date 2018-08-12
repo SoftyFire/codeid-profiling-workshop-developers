@@ -4,6 +4,8 @@ namespace app\tests;
 
 use app\models\Article;
 use app\services\ArticlesGenerator;
+use Blackfire\Bridge\PhpUnit\TestCaseTrait;
+use Blackfire\Profile\Configuration;
 use joshtronic\LoremIpsum;
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +16,8 @@ use PHPUnit\Framework\TestCase;
  */
 class ArticlesGeneratorTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @var ArticlesGenerator
      */
@@ -26,15 +30,25 @@ class ArticlesGeneratorTest extends TestCase
 
     public function testGeneratesArticles()
     {
-        // TODO: measure and assert performance of articles generation
-        $articles = $this->generator->generate(100);
+        $config = new Configuration();
 
-        $this->assertContainsOnlyInstancesOf(Article::class, $articles);
+        // define some assertions
+        $config
+            ->assert('metrics.sql.queries.count < 20', 'SQL queries')
+            // ...
+        ;
 
-        $article = $articles[0];
-        $this->assertNotEmpty($article->title);
-        $this->assertNotEmpty($article->text);
-        $this->assertNotEmpty($article->id);
-        $this->assertNotEmpty($article->tags);
+        $profile = $this->assertBlackfire($config, function () {
+            $articles = $this->generator->generate(100);
+
+            $this->assertContainsOnlyInstancesOf(Article::class, $articles);
+
+
+            $article = $articles[0];
+            $this->assertNotEmpty($article->title);
+            $this->assertNotEmpty($article->text);
+            $this->assertNotEmpty($article->id);
+            $this->assertNotEmpty($article->tags);
+        });
     }
 }
